@@ -2,12 +2,11 @@ package com.acme.hotels.api.v1;
 
 import com.acme.hotels.model.Hotel;
 import com.acme.hotels.service.HotelService;
+import com.acme.hotels.utils.HotelEditor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,23 +20,18 @@ public class HotelController {
         this.service = service;
     }
 
+    @InitBinder
+    public void initBinder(WebDataBinder binder){
+        binder.registerCustomEditor(Hotel.class, new HotelEditor(new ObjectMapper()));
+    }
+
     @GetMapping(URI)
     List<Hotel> findAll() {
         return service.findAll();
     }
     @GetMapping(URI+"/{hotel}")
-    List<Hotel> findByHotel(@PathVariable("hotel") String json, @RequestParam List<String> fields) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Hotel hotel;
-        System.out.println(json);
-        try {
-            hotel = objectMapper.readValue(json, Hotel.class);
-            System.out.println(hotel);
-        }catch (Exception e){
-            hotel = Hotel.builder().build();
-            System.out.println(e.getMessage());
-        }
-
+    List<Hotel> findByHotel(@PathVariable("hotel") Hotel hotel, @RequestParam List<String> fields) {
+        System.out.println(hotel);
         return service.findAll(fields, hotel);
     }
 }
