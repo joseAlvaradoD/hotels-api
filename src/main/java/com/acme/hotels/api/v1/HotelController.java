@@ -5,6 +5,9 @@ import com.acme.hotels.service.HotelService;
 import com.acme.hotels.utils.HotelEditor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,8 +33,11 @@ public class HotelController {
         return service.findAll();
     }
     @GetMapping(URI+"/{hotel}")
-    List<Hotel> findByHotel(@PathVariable("hotel") Hotel hotel, @RequestParam List<String> fields) {
-        System.out.println(hotel);
-        return service.findAll(fields, hotel);
+    Page<Hotel> findByHotel(@PathVariable("hotel") Hotel hotel,
+                            @RequestParam List<String> fields,
+                            @RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "3") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return service.findAll(hotel, fields, pageable);
     }
 }

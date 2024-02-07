@@ -5,6 +5,8 @@ import com.acme.hotels.repository.HotelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.UntypedExampleMatcher;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +27,13 @@ public class HotelService {
     public List<Hotel> findAll(){
         return repository.findAll();
     }
-    public List<Hotel> findAll(List<String> fields, Hotel hotel){
+    public Page<Hotel> findAll(Hotel hotel,
+                               List<String> fields,
+                               Pageable pageable){
         ExampleMatcher matcher = UntypedExampleMatcher.matchingAll().withIgnorePaths("id").withIgnoreNullValues();
         Example<Hotel> example = Example.of(hotel, matcher);
-        return repository.findBy(example, q->q.project(fields).all());
+        return repository.findBy(example, q->
+                q.project(fields)
+                .page(pageable));
     }
 }
